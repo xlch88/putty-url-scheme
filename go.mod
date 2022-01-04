@@ -1,4 +1,4 @@
-module putty-url-sheme
+module putty-url-scheme
 
 go 1.17
 
