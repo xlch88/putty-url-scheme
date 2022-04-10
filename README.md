@@ -1,3 +1,6 @@
+# 对于中国用户的 温 馨 提 示
+如果-register无效，请关闭傻宝360等国产傻宝软件。
+
 # PuTTY URL Scheme Helper 
 Open PuTTY as a url scheme
 
