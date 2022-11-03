@@ -1,6 +1,8 @@
 # PuTTY URL Scheme Helper 
 Open PuTTY as a url scheme
 
+[中文](README_CN.md)
+
 # Install
 1. download release binary file to PuTTY path.
 2. run `putty-url-scheme.exe --register` to add registry
