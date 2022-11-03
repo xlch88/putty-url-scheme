@@ -1,6 +1,3 @@
-# 对于中国用户的 温 馨 提 示
-如果-register无效，请关闭傻宝360等国产傻宝软件。
-
 # PuTTY URL Scheme Helper 
 Open PuTTY as a url scheme
 
@@ -11,3 +8,13 @@ Open PuTTY as a url scheme
 
 # URL Scheme
 ssh://username:password@hostname:port
+
+## Use Proxy
+ssh://username:password@hostname:port/?proxyHost=`[HOSTNAME]`&proxyPort=`[PORT]`&proxyUsername=`[USERNAME]`&proxyPassword=`[PASSWORD]`&proxyMethod=`[METHOD]`
+
+Proxy Method:
+1. SOCKS 4
+2. SOCKS 5
+3. HTTP
+4. Telnet
+5. Local
