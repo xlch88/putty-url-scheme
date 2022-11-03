@@ -27,6 +27,10 @@ func main() {
 
 	if len(os.Args) < 2 {
 		fmt.Println("parameter missing.")
+		if MessageBox(0, "Need help?\r\n你是否需要一点帮助？如果需要，请点“是”\r\n\r\nBy.Dark495\r\nhttps://github.com/xlch88/putty-url-scheme", "PuTTY URL Scheme | Version "+VERSION, 32+4) == 6 {
+			exec.Command("rundll32", "url.dll,FileProtocolHandler", "https://github.com/xlch88/putty-url-scheme").Start()
+		}
+
 		return
 	}
 
