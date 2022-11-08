@@ -165,7 +165,6 @@ func main() {
 
 	ex, _ := os.Executable()
 	puttyBin := filepath.Dir(ex) + "\\putty.exe"
-	puttyBin = "F:\\putty\\putty.exe"
 	execCmd := exec.Command(puttyBin, cmd...)
 
 	err = execCmd.Start()
