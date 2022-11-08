@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"golang.org/x/sys/windows/registry"
@@ -27,7 +28,12 @@ func main() {
 
 	if len(os.Args) < 2 {
 		fmt.Println("parameter missing.")
-		if MessageBox(0, "Need help?\r\n你是否需要一点帮助？如果需要，请点“是”\r\n\r\nBy.Dark495\r\nhttps://github.com/xlch88/putty-url-scheme", "PuTTY URL Scheme | Version "+VERSION, 32+4) == 6 {
+		if MessageBox(0, "Register URL Scheme ?\r\n是否立即注册PuTTY URL Scheme？如需要，请点“是”。\r\n\r\nBy.Dark495\r\nhttps://github.com/xlch88/putty-url-scheme", "PuTTY URL Scheme | Version "+VERSION, 32+4) == 6 {
+			registerURLScheme()
+			return
+		}
+
+		if MessageBox(0, "Need help?\r\n你是否需要一点帮助？如果需要，请点“是”", "PuTTY URL Scheme | Version "+VERSION, 32+4) == 6 {
 			exec.Command("rundll32", "url.dll,FileProtocolHandler", "https://github.com/xlch88/putty-url-scheme").Start()
 		}
 
@@ -163,6 +169,10 @@ func main() {
 	cmd = append(cmd, port)
 	cmd = append(cmd, hostname)
 
+	if checkPuTTYExist() == false {
+		return
+	}
+
 	ex, _ := os.Executable()
 	puttyBin := filepath.Dir(ex) + "\\putty.exe"
 	execCmd := exec.Command(puttyBin, cmd...)
@@ -178,8 +188,23 @@ func main() {
 	}
 }
 
+func checkPuTTYExist() bool {
+	ex, _ := os.Executable()
+	puttyBin := filepath.Dir(ex) + "\\putty.exe"
+	if _, err := os.Stat(puttyBin); err != nil && errors.Is(err, os.ErrNotExist) {
+		MessageBox(0, "PuTTY.exe not exist.\r\nPuTTY.exe文件不存在，请将本程序放在PuTTY.exe同路径。", "Error", 48)
+		return false
+	}
+
+	return true
+}
+
 func registerURLScheme() {
 	var k registry.Key
+
+	if checkPuTTYExist() == false {
+		return
+	}
 
 	prefix := "SOFTWARE\\Classes\\"
 	urlScheme := "ssh"
@@ -192,8 +217,35 @@ func registerURLScheme() {
 
 	programLocation := ex
 
+	// create win10 app START ==================================================================================
+	k2, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\Wow6432Node\\RegisteredApplications", permission)
+	k2.SetStringValue("PuTTYURLScheme", "SOFTWARE\\PuTTYUrlSchemeCapabilities")
+
+	k3, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\PuTTYUrlSchemeCapabilities", permission)
+	k3.SetStringValue("ApplicationDescription", "PuTTY Url Scheme By.Dark495")
+
+	k4, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\PuTTYUrlSchemeCapabilities\\UrlAssociations", permission)
+	k4.SetStringValue("ssh", "PuTTYUrlScheme.Url")
+
+	k5, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\Classes\\PuTTYUrlScheme.Url", permission)
+	k5.SetStringValue("", "PuTTY Url Scheme By.Dark495")
+	k5.SetStringValue("URL Protocol", "")
+	k5.SetDWordValue("EditFlags", 0x00000002)
+	k5.SetDWordValue("BrowserFlags", 0x00000008)
+
+	k6, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\Classes\\PuTTYUrlScheme.Url\\DefaultIcon", permission)
+	k6.SetStringValue("", "\""+programLocation+"\",0")
+
+	k7, _, err := registry.CreateKey(registry.LOCAL_MACHINE, "SOFTWARE\\Classes\\PuTTYUrlScheme.Url\\shell\\open\\command", permission)
+	if err != nil {
+		fmt.Println(err)
+	}
+	k7.SetStringValue("", "\""+programLocation+"\" \"%1\"")
+
 	// create key
 	k, _, _ = registry.CreateKey(baseKey, basePath, permission)
+
+	// create win10 app END ====================================================================================
 
 	// set description
 	k.SetStringValue("", "Putty")
@@ -205,10 +257,10 @@ func registerURLScheme() {
 	k, _, _ = registry.CreateKey(baseKey, basePath+"\\shell\\open\\command", permission)
 
 	// set open command
-	k.SetStringValue("", programLocation+" \"%1\"")
+	k.SetStringValue("", "\""+programLocation+"\" \"%1\"")
 
 	fmt.Println("PuTTY URL Scheme | Version " + VERSION)
-	MessageBox(0, "register success.\r\n\r\nBy.Dark495\r\nhttps://github.com/xlch88/putty-url-scheme", "PuTTY URL Scheme | Version "+VERSION, 0)
+	MessageBox(0, "register success.\r\n注册成功！\r\n\r\nBy.Dark495\r\nhttps://github.com/xlch88/putty-url-scheme", "PuTTY URL Scheme | Version "+VERSION, 0)
 }
 
 // MessageBox of Win32 API.
